@@ -33,7 +33,7 @@ thetas = np.random.rand(n)
 #implement the gradient descent algorithm
 def gradientDescent_with_reg(thetas, iterations, lr, X, y):
     losshistory = []
-    paramhistory = []
+    paramhistory = np.empty((0,n))
     m = len(y)
     for i in range(iterations):
         predict = 0
@@ -43,7 +43,7 @@ def gradientDescent_with_reg(thetas, iterations, lr, X, y):
             else:
                 predict += thetas[i]*X[:,i-1]
         losshistory.append(1/(2*m)*(np.sum(np.square(predict-y)+reg_pram*np.sum(np.square(thetas)))))
-        paramhistory.extend(thetas)
+        paramhistory = np.vstack([paramhistory, thetas])
         #update the parameters using stochastic gradient descent
         for i in range(n):
             if i == 0:
@@ -55,8 +55,6 @@ def gradientDescent_with_reg(thetas, iterations, lr, X, y):
 
 thetase, losshistory, paramhistory = gradientDescent_with_reg(thetas, iterations, lr, x_train, y_train)
 
-paramhistory = [paramhistory[i:i+n] for i in range(0, len(paramhistory), n)]
-paramhistory = np.array(paramhistory)
 
 
 print(thetas)
