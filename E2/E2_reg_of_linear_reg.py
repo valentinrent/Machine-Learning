@@ -23,7 +23,7 @@ y_train, y_test = y[:split_index], y[split_index:]
 
 #initialize the hyper-parameters
 lr = 0.001
-reg_pram = 0.5
+reg_pram = 5
 iterations = 10000
 n = X.shape[1] + 1 #number of features + bias 
 thetas = np.random.rand(n) 
@@ -53,7 +53,7 @@ def gradientDescent_with_reg(thetas, iterations, lr, X, y):
     return thetas ,losshistory, paramhistory
     
 
-thetase, losshistory, paramhistory = gradientDescent_with_reg(thetas, iterations, lr, x_train, y_train)
+thetas, losshistory, paramhistory = gradientDescent_with_reg(thetas, iterations, lr, x_train, y_train)
 
 
 
@@ -72,7 +72,7 @@ plt.title('Loss function over iterations')
 plt.legend()
 
 
-
+#show convergence of thetas
 plt.figure(2)
 
 colors = ['blue', 'green', 'red', 'cyan', 'magenta', 'yellow', 'black']
@@ -82,6 +82,20 @@ for i in range(n):
     plt.ylabel('Theta')
     plt.title('Thetas over iterations')
     plt.legend()
+
+#compare test and train data fitting
+plt.figure(3)
+y_train_predict = np.dot(x_train, thetas[1:]) + thetas[0]
+y_test_predict = np.dot(x_test, thetas[1:]) + thetas[0]
+x_index_test = np.arange(len(y_test))
+x_index_train = np.arange(len(y_train))
+plt.plot(x_index_train, y_train, label='train', color='blue')
+plt.plot(x_index_train, y_train_predict, label='train predict', color='red')
+
+plt.figure(4)
+plt.plot(x_index_test, y_test, label='test', color='green')
+plt.plot(x_index_test, y_test_predict, label='test predict', color='orange')
+
 
 # Anzeigen der figures
 plt.show()
