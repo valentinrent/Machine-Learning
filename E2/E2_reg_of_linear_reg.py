@@ -1,4 +1,4 @@
-# Description: This file is used to implement multivariate linear regression using python
+# Description: This file is used to implement multivariate linear regression with regression using python
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
