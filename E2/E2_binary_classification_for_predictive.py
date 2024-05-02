@@ -1,22 +1,14 @@
-# Description: This file is used to implement binary classification using logistic regression
+# Description: This file is used to implement binary classification for predictive maintenance
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 #extraction of dataset
-data_set = pd.read_csv("Real_estate.csv")
-X = data_set.iloc[:, 1:-3].values
-y_price = data_set.iloc[:, -1].values
+data_set = pd.read_csv("predictive_maintenance.csv")
+X = data_set.iloc[:, 3:-2].values  #drop first 3 columns
+y = data_set.iloc[:, -2].values #use second to last column as y
 
-#create y_lables where 1 means affordable or lower than the mean and 0 means unaffordable or higher than the mean
-y_mean = np.mean(y_price)
-y_lable = np.empty(len(y_price))
-for i in range(len(y_price)):
-    if y_price[i] > y_mean:
-        y_lable[i] = 0
-    else:
-        y_lable[i] = 1
 
 
 #Normalize input data
@@ -27,13 +19,13 @@ X = scaler.fit_transform(X)
 split_ratio = 0.8
 split_index = int(split_ratio * len(X))
 x_train, x_test = X[:split_index], X[split_index:]
-y_train, y_test = y_lable[:split_index], y_lable[split_index:]
+y_train, y_test = y[:split_index], y[split_index:]
 
 
 
 #initialize the hyper-parameters
 lr = 0.01
-iterations = 30000
+iterations = 100000
 n = X.shape[1] + 1 #number of features + bias 
 thetas = np.random.rand(n) 
 
