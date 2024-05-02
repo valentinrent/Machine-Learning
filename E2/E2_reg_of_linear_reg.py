@@ -23,7 +23,7 @@ y_train, y_test = y[:split_index], y[split_index:]
 
 #initialize the hyper-parameters
 lr = 0.001
-reg_pram = 5
+reg_pram = 10
 iterations = 10000
 n = X.shape[1] + 1 #number of features + bias 
 thetas = np.random.rand(n) 
@@ -42,7 +42,7 @@ def gradientDescent_with_reg(thetas, iterations, lr, X, y):
                 predict = thetas[i]
             else:
                 predict += thetas[i]*X[:,i-1]
-        losshistory.append(1/(2*m)*(np.sum(np.square(predict-y)+reg_pram*np.sum(np.square(thetas)))))
+        losshistory.append(1/(2*m)*(np.sum(np.square(predict-y))+reg_pram*np.sum(np.square(thetas))))
         paramhistory = np.vstack([paramhistory, thetas])
         #update the parameters using stochastic gradient descent
         for i in range(n):
@@ -58,7 +58,14 @@ thetas, losshistory, paramhistory = gradientDescent_with_reg(thetas, iterations,
 
 
 print(thetas)
-print("MSE: ",losshistory[-1])
+#compare final loss values of test and training data
+for i in range(n):
+            if i == 0:
+                predict = thetas[i]
+            else:
+                predict += thetas[i]*x_test[:,i-1]
+print("Test MSE convergence: ",1/(2*len(y_test))*(np.sum(np.square(predict-y_test))+reg_pram*np.sum(np.square(thetas))))
+print("Train MSE convergence: ",losshistory[-1])
 
 
 #plot the loss function

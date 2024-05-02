@@ -25,7 +25,7 @@ y_train, y_test = y[:split_index], y[split_index:]
 
 #initialize the hyper-parameters
 lr = 0.01
-iterations = 100000
+iterations = 30000
 n = X.shape[1] + 1 #number of features + bias 
 thetas = np.random.rand(n) 
 
