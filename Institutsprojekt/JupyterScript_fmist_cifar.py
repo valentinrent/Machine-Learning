@@ -17,6 +17,10 @@ from torch.utils.data import DataLoader
 from torchmetrics import Accuracy, F1Score
 from torchvision import datasets, transforms
 from tqdm.autonotebook import tqdm
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
+
 
 
 # %% [markdown]
@@ -76,12 +80,14 @@ def train_model(model, train_loader, optimizer, loss_fn, epochs, device="cpu"):
     model.train()  # Set the model to training mode
 
     # ToDo: Initialize the metrics
-    numclasses = len(train_loader.dataset.classes)
-    print(numclasses)
-    acc = Accuracy(task='multiclass', num_classes=numclasses)
-    f1 = F1Score(task='multiclass',num_classes=numclasses)
+    numclasses = 10
+    acc = Accuracy(task='multiclass', num_classes=numclasses).to(device)
+    f1 = F1Score(task='multiclass',num_classes=numclasses).to(device)
 
-    running_loss = []  # Initialize the running loss
+
+
+    running_loss = []# Initialize the running loss
+   
 
     progress_bar1 = tqdm(
         range(epochs),
@@ -129,8 +135,8 @@ def evaluate_model(model, test_loader, loss_fn, device="cpu"):
 
     # ToDo: Initialize the metrics
     numclasses = len(test_loader.dataset.classes)
-    acc = Accuracy(task='multiclass', num_classes=numclasses)
-    f1 = F1Score(task='multiclass',num_classes=numclasses)
+    acc = Accuracy(task='multiclass', num_classes=numclasses).to(device)
+    f1 = F1Score(task='multiclass',num_classes=numclasses).to(device)
 
     running_loss = []  # Initialize the running loss
 
@@ -216,7 +222,6 @@ cifar10_test_dataset = datasets.CIFAR10(root="C:\datasets", train=False, transfo
 # ToDo: Prepare the data loaders
 cifar10_train_loader = torch.utils.data.DataLoader(cifar10_train_dataset, batch_size=batch_size, shuffle=True)
 cifar10_test_loader = torch.utils.data.DataLoader(cifar10_test_dataset, batch_size=batch_size, shuffle=False)
-
 # %% [markdown]
 # Since all our tasks involve image classification, we will use the same loss function for all the models. We will use the Cross Entropy Loss function, which is commonly used for classification tasks. It is defined as:
 # 
@@ -289,16 +294,15 @@ class MLP(nn.Module):
 
 model = MLP()
 
-# Print the model architecture
-print(model)
+
 
 # ToDo: Define  Optimizer using the model parameters and the learning rate
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
 # %%
 # Run the entire pipeline
-train_model(model, fmnist_train_loader, optimizer, loss_fn, epochs=epochs)
-evaluate_model(model, fmnist_test_loader, loss_fn)
+# train_model(model, fmnist_train_loader, optimizer, loss_fn, epochs=epochs)
+# evaluate_model(model, fmnist_test_loader, loss_fn)
 
 # %% [markdown]
 # ## CIFAR10 with MLP
@@ -340,16 +344,17 @@ class MLP(nn.Module):
 
 model = MLP()
 
-# Print the model architecture
-print(model)
+
+
+
 
 # ToDo: Define Optimizer using the model parameters and the learning rate
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
 # %%
 # Run the entire pipeline
-train_model(model, cifar10_train_loader, optimizer, loss_fn, device=device, epochs=epochs)
-evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
+# train_model(model, cifar10_train_loader, optimizer, loss_fn, device=device, epochs=epochs)
+# evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
 
 # %% [markdown]
 # ### Exercises
@@ -427,16 +432,14 @@ class CNN(nn.Module):
 
 model = CNN()
 
-# Print the model architecture
-print(model)
 
 # ToDo: Define Optimizer using the model parameters and the learning rate
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # %%
 # Run the entire pipeline
-train_model(model, cifar10_train_loader, optimizer, loss_fn, device=device, epochs=epochs)
-evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
+# train_model(model, cifar10_train_loader, optimizer, loss_fn, device=device, epochs=epochs)
+# evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
 
 # %% [markdown]
 # ### Exercises
@@ -469,20 +472,20 @@ evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
 
 # %%
 model = torch.hub.load("pytorch/vision:v0.9.0", "resnet18", weights=None)
-
+print(model)
 # Modify the first layer to accept 3 x 32 x 32 images
 # Hint: You can access the model layers and modify them
-# model. ...
+model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
 
 # Modify the last layer to have 10 classes
 # Hint: You can access the model layers and modify them
-# model. ...
+model.fc = nn.Linear(512, 10)
 
 # Print the model architecture
 print(model)
 
 # ToDo: Define Optimizer using the model parameters and the learning rate
-# optimizer =
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # %%
 # Run the entire pipeline
