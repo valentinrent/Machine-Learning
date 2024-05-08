@@ -80,14 +80,12 @@ def train_model(model, train_loader, optimizer, loss_fn, epochs, device="cpu"):
     model.train()  # Set the model to training mode
 
     # ToDo: Initialize the metrics
-    numclasses = 10
+    numclasses = len(train_loader.dataset.classes)
+    print(numclasses)
     acc = Accuracy(task='multiclass', num_classes=numclasses).to(device)
     f1 = F1Score(task='multiclass',num_classes=numclasses).to(device)
 
-
-
-    running_loss = []# Initialize the running loss
-   
+    running_loss = []  # Initialize the running loss
 
     progress_bar1 = tqdm(
         range(epochs),
@@ -115,8 +113,8 @@ def train_model(model, train_loader, optimizer, loss_fn, epochs, device="cpu"):
             optimizer.step()
 
             # ToDo: Update the metrics
-            acc(f_x, y)
-            f1(f_x, y)
+            acc.update(f_x, y)
+            f1.update(f_x, y)
 
             running_loss.append(loss.item())  # Update the running loss
             progress_bar2.set_description(desc=f"Loss: {running_loss[-1]:.3f}")
@@ -150,8 +148,8 @@ def evaluate_model(model, test_loader, loss_fn, device="cpu"):
         loss = loss_fn(f_x, y)
 
         # ToDo: Update the metrics
-        acc(f_x, y)
-        f1(f_x, y)
+        acc.update(f_x, y)
+        f1.update(f_x, y)
 
         running_loss.append(loss.item())  # Update the running loss
         progress_bar.set_description(desc=f"Loss: {running_loss[-1]:.3f}")
@@ -222,6 +220,7 @@ cifar10_test_dataset = datasets.CIFAR10(root="C:\datasets", train=False, transfo
 # ToDo: Prepare the data loaders
 cifar10_train_loader = torch.utils.data.DataLoader(cifar10_train_dataset, batch_size=batch_size, shuffle=True)
 cifar10_test_loader = torch.utils.data.DataLoader(cifar10_test_dataset, batch_size=batch_size, shuffle=False)
+
 # %% [markdown]
 # Since all our tasks involve image classification, we will use the same loss function for all the models. We will use the Cross Entropy Loss function, which is commonly used for classification tasks. It is defined as:
 # 
@@ -294,15 +293,16 @@ class MLP(nn.Module):
 
 model = MLP()
 
-
+# Print the model architecture
+print(model)
 
 # ToDo: Define  Optimizer using the model parameters and the learning rate
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
 # %%
-# Run the entire pipeline
-# train_model(model, fmnist_train_loader, optimizer, loss_fn, epochs=epochs)
-# evaluate_model(model, fmnist_test_loader, loss_fn)
+# # Run the entire pipeline
+train_model(model, fmnist_train_loader, optimizer, loss_fn, epochs=epochs)
+evaluate_model(model, fmnist_test_loader, loss_fn)
 
 # %% [markdown]
 # ## CIFAR10 with MLP
@@ -344,17 +344,16 @@ class MLP(nn.Module):
 
 model = MLP()
 
-
-
-
+# Print the model architecture
+print(model)
 
 # ToDo: Define Optimizer using the model parameters and the learning rate
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
 # %%
-# Run the entire pipeline
-# train_model(model, cifar10_train_loader, optimizer, loss_fn, device=device, epochs=epochs)
-# evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
+# # Run the entire pipeline
+train_model(model, cifar10_train_loader, optimizer, loss_fn, device=device, epochs=epochs)
+evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
 
 # %% [markdown]
 # ### Exercises
@@ -417,7 +416,8 @@ class CNN(nn.Module):
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2),
-            nn.Linear(64, 64),
+            nn.Flatten(),
+            nn.Linear(64*32*32, 64),
             nn.ReLU(),
             nn.Linear(64, 10)
 
@@ -432,26 +432,39 @@ class CNN(nn.Module):
 
 model = CNN()
 
+# Print the model architecture
+print(model)
 
 # ToDo: Define Optimizer using the model parameters and the learning rate
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # %%
-# Run the entire pipeline
-# train_model(model, cifar10_train_loader, optimizer, loss_fn, device=device, epochs=epochs)
-# evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
+# # Run the entire pipeline
+train_model(model, cifar10_train_loader, optimizer, loss_fn, device=device, epochs=epochs)
+evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
 
 # %% [markdown]
 # ### Exercises
 # 
 # After training the simple CNN model on the CIFAR10 dataset, please answer the following questions:
-# 1. What is the train- and test-accuracy of the CNN model?
-# 2. What is the train- and test-F1-score of the CNN model?
+# 1. What are the train- and test-accuracies of the CNN models?
+# CIFAR10:
+#     Train: 79.4%
+#     Test: 83.4%
+# 2. What are the train- and test-F1-scores of the CNN models?
+# CIFAR10:
+#     Train: 0.794
+#     Test: 0.834
 # 3. Does the simple CNN model generalize well on the CIFAR10 dataset? Explain your answer.
+# Accuracy and F1 of test data is higher than of training data -> Yes
 # 4. What improvements can be made to the simple CNN model to improve its generalization performance?
+# More Channels ? More layers ?
 # 5. How does the simple CNN model perform on the CIFAR10 dataset compared to the MLP model?
+# Much better with double the accuracy
 # 6. What are the advantages of using a CNN model over an MLP model for image classification tasks?
+# CNN takes sourrounding of pixels into consideration and can detect features better 
 # 7. What results do you expect if we use the CNN model for the FashionMNIST dataset?
+# Even better results
 
 # %% [markdown]
 # **ToDo: Your answers here**
@@ -472,7 +485,7 @@ optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # %%
 model = torch.hub.load("pytorch/vision:v0.9.0", "resnet18", weights=None)
-print(model)
+
 # Modify the first layer to accept 3 x 32 x 32 images
 # Hint: You can access the model layers and modify them
 model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
@@ -497,11 +510,19 @@ evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
 # 
 # After training the ResNet18 model on the CIFAR10 dataset, please answer the following questions:
 # 1. What is the train- and test-accuracy of the ResNet18 model?
+# Train: 94.4%
+# Test: 81.1%
 # 2. What is the train- and test-F1-score of the ResNet18 model?
+# Train: 94.4%
+# Test: 81.1%
 # 3. Does the ResNet18 model generalize well on the CIFAR10 dataset? Explain your answer.
+# Not that well bruv
 # 4. How does the ResNet18 model perform on the CIFAR10 dataset compared to the simple CNN model?
+# Training much better/testing worse ?
 # 5. How many parameters does the ResNet18 model have compared to the simple CNN model? Is the difference reflected in the performance? How about the training time?
+# Long training time / much more parameters
 # 6. Can we expect the same behavior if we created a deeper MLP model instead of using the ResNet18 model? Explain your answer.
+# 
 
 # %% [markdown]
 # **ToDo: Your answers here**
