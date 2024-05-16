@@ -361,30 +361,33 @@ evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
 # After training the MLP model on the datasets, please answer the following questions:
 # 
 # 1. What are the train- and test-accuracies of the MLP models?
-# MNIST: 
-#     Train: 79,4%
-#     Test: 83,4%
-# CIFAR10:
-#     Train: 38.5%
-#     Test: 47.5%
 # 2. What are the train- and test-F1-scores of the MLP models?
-# MNIST: 
-#     Train: 0.794
-#     Test: 0.834
-# CIFAR10:
-#     Train: 0.385
-#     Test: 0.475
 # 3. Does the MLP model generalize well on the datasets? Explain your answer.
-# Generalization is pretty goof since test data always perfoms a little bit better
 # 4. How does the MLP model perform on the CIFAR10 dataset compared to the FashionMNIST dataset?
-# Worse performance (aprrox. 2x)
 # 5. What are some possible explanations for differences in performance?
-# simpler features in MNIST Fashion
 # 6. Can we use the MLP model for datasets with higher resolution images? Explain your answer.
-# You could however computation would take very long
 
 # %% [markdown]
-# **ToDo: Your answers here**
+# ## Results
+# 1. 
+#     * MNIST: 
+#     1. Train: 79,4%
+#     3. Test: 83,4%
+#     * CIFAR10:
+#     1. Train: 39.1%
+#     3. Test: 47.8%
+# 2. 
+#     * MNIST: 
+#     1. Train: 0.794
+#     3. Test: 0.835
+#     * CIFAR10:
+#     1. Train: 0.391
+#     3. Test: 0.478
+# 3. Generalization seems to be good since test data perfoms slightly better than training data
+# 4. The MLP performes approx. two times worse on the CIFAR10 dataset compared to FashionMNIST.
+# 5. The CIFAR10 dataset contains more complex images and features such as color are not considered.
+# 6. While it is possible, complexity will get very high making MLP's ineffecive 
+# 
 
 # %% [markdown]
 # ## CIFAR10 with Simple CNN
@@ -417,7 +420,7 @@ class CNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(2),
             nn.Flatten(),
-            nn.Linear(64*32*32, 64),
+            nn.Linear(64*64, 64),
             nn.ReLU(),
             nn.Linear(64, 10)
 
@@ -448,26 +451,31 @@ evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
 # 
 # After training the simple CNN model on the CIFAR10 dataset, please answer the following questions:
 # 1. What are the train- and test-accuracies of the CNN models?
-# CIFAR10:
-#     Train: 79.4%
-#     Test: 83.4%
 # 2. What are the train- and test-F1-scores of the CNN models?
-# CIFAR10:
-#     Train: 0.794
-#     Test: 0.834
 # 3. Does the simple CNN model generalize well on the CIFAR10 dataset? Explain your answer.
-# Accuracy and F1 of test data is higher than of training data -> Yes
 # 4. What improvements can be made to the simple CNN model to improve its generalization performance?
-# More Channels ? More layers ?
 # 5. How does the simple CNN model perform on the CIFAR10 dataset compared to the MLP model?
-# Much better with double the accuracy
 # 6. What are the advantages of using a CNN model over an MLP model for image classification tasks?
-# CNN takes sourrounding of pixels into consideration and can detect features better 
 # 7. What results do you expect if we use the CNN model for the FashionMNIST dataset?
-# Even better results
+# 
 
 # %% [markdown]
-# **ToDo: Your answers here**
+# ## Results
+# 1. 
+#     * CIFAR10:
+#     1. Train: 89.7%
+#     3. Test: 68.7%
+# 2. 
+#     * CIFAR10:
+#     1. Train: 0.897
+#     3. Test: 0.687
+# 3. In this case the model does not seem to generalize well since training accuracy and F1 score are much higher than when using test data.
+# 4. Methods such as Regularization and Batch Normalization can usually improve generalization.
+# 5. The CNN model performes almost twice as good as the MLP model
+# 6. CNN models take the sourroundings of pixels into consideration and can better detect features. Furthermore they require less parameters and are easier to train.
+# 7. Similar or better results
+# 
+# 
 
 # %% [markdown]
 # ## CIFAR10 with Modern CNN
@@ -510,21 +518,29 @@ evaluate_model(model, cifar10_test_loader, loss_fn, device=device)
 # 
 # After training the ResNet18 model on the CIFAR10 dataset, please answer the following questions:
 # 1. What is the train- and test-accuracy of the ResNet18 model?
-# Train: 94.4%
-# Test: 81.1%
 # 2. What is the train- and test-F1-score of the ResNet18 model?
-# Train: 94.4%
-# Test: 81.1%
 # 3. Does the ResNet18 model generalize well on the CIFAR10 dataset? Explain your answer.
-# Not that well bruv
 # 4. How does the ResNet18 model perform on the CIFAR10 dataset compared to the simple CNN model?
-# Training much better/testing worse ?
 # 5. How many parameters does the ResNet18 model have compared to the simple CNN model? Is the difference reflected in the performance? How about the training time?
-# Long training time / much more parameters
 # 6. Can we expect the same behavior if we created a deeper MLP model instead of using the ResNet18 model? Explain your answer.
 # 
 
 # %% [markdown]
-# **ToDo: Your answers here**
+# ## Results
+# 1. 
+#     * ResNet18:
+#     1. Train: 94,5%
+#     3. Test: 81.3%
+# 2. 
+#     * ResNet18:
+#     1. Train: 0.945
+#     3. Test: 0.813
+# 3. While not perfect it definetely generalizes better than the simple CNN model and since overall acurracy is fairly high it is acceptable.
+# 4. Both training and testing show an increase of approx. 10% in acurracy. 
+# 5. ResNet18 consists of 11 million parameters while our CNN has approx. 300.000. Even though we see an increase in accuracy it is not proportional to the amount of parameters and more importantly to the training time.
+# 6. While deeper networks might further improve performance MLP's lack the ability to easily understand spatial relationships making it nearly impossible to outperfome CNN's.
+# 
+# 
+# 
 
 
