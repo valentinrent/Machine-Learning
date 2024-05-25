@@ -95,7 +95,7 @@ transform = transforms.Compose(
 
 # ToDo: Download the training and test datasets
 train_dataset = datasets.CIFAR10(
-    root="C:/", train=True, download=True, transform=transform
+    root="C:/datasets", train=True, download=True, transform=transform
 )
 train_subsets = uniform_allocation(
     train_dataset.targets,
@@ -109,7 +109,7 @@ train_subset_dataloaders = [
 ]
 
 test_dataset = datasets.CIFAR10(
-    root="C:/", train=False, download=True, transform=transform
+    root="C:/datasets", train=False, download=True, transform=transform
 )
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
@@ -127,7 +127,7 @@ def train_local_model(model, train_loader, optimizer, loss_fn, epochs, device="c
     model.train()  # Set the model to training mode
 
     # ToDo: Initialize the metrics
-    numclasses = len(train_loader.dataset.classes)
+    numclasses = len(train_loader.dataset.dataset.classes)
     acc = Accuracy(task='multiclass', num_classes=numclasses).to(device)
     f1 = F1Score(task='multiclass',num_classes=numclasses).to(device)
 
@@ -201,11 +201,14 @@ def evaluate_global_model(model, test_loader, loss_fn, device="cpu"):
         progress_bar.set_description(desc=f"Loss: {running_loss[-1]:.3f}")
 
     avg_loss = sum(running_loss) / len(running_loss)
+    final_acc = acc.compute().item()
+    final_f1 = f1.compute().item()
+
     print(
         f"Evaluation Results: [Loss: {avg_loss:.3f},  Acc: {acc.compute():.3f}, F1: {f1.compute():.3f}]"
     )
 
-    return acc, f1, avg_loss
+    return final_acc, final_f1, avg_loss
 
 # %%
 progress_bar = tqdm(
@@ -222,14 +225,18 @@ test_f1_scores = []
 #main loop
 for _ in progress_bar:
     for model, trainset, optims in zip(client_models, train_subset_dataloaders, client_optims):
-        train_local_model(model, trainset, optims, loss_fn, local_epochs, device="cpu")
+        train_local_model(model, trainset, optims, loss_fn, local_epochs, device)
         
-    global_model = copy.deepcopy(client_models[0])  
+    global_model = deepcopy(client_models[0])  
+
+    client_model_params = [list(client_model.parameters()) for client_model in client_models]
 
     # Iterate over each parameter in the global model
-    for global_param in global_model.parameters():
-        # Take the average of the corresponding parameters in each client model
-        global_param.data = torch.mean(torch.stack([client_param.data for client_model in client_models for client_param in client_model.parameters()]), dim=0)
+    for param_index, global_param in enumerate(global_model.parameters()):
+        # Stack the corresponding parameters from each client model
+        client_params = [params[param_index].data for params in client_model_params]
+        stacked_params = torch.stack(client_params, dim=0)
+        global_param.data = torch.mean(stacked_params, dim=0)
     
     test_accuracy, test_f1, test_loss = evaluate_global_model(global_model, test_dataloader, loss_fn, device)
     
