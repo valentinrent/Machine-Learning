@@ -62,8 +62,8 @@ def linear_svm(X, y):
     '''
     
     # Support vectors have non-zero lagrange multipliers
-    sv = alphas > 0.0001
-    indx = np.arange(len(alphas))[sv]
+    sv = alphas > 1e-5
+    ind = np.arange(len(alphas))[sv]
     sv_alphas = alphas[sv]
     sv_X = X[sv]
     sv_y = y[sv]
@@ -72,7 +72,7 @@ def linear_svm(X, y):
     w = np.sum(sv_alphas[:, None] * sv_y[:, None] * sv_X, axis=0)
 
     # Compute the intercept b
-    b = np.mean([y[i] - np.dot(w, X[i]) for i in indx])
+    b = np.mean([y[i] - np.dot(w, X[i]) for i in ind])
     # -------------------------------------
 
     return w, b, alphas, sv
