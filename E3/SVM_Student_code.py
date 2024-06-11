@@ -102,7 +102,7 @@ def calculate_error(X, y, w, b):
 
 
 # Calculate the misclassification error
-
+print(f'Misclassification error: {calculate_error(X, y, w, b)}')
 
 
 # Plot the data points
@@ -124,5 +124,5 @@ plt.scatter(X[sv, 0], X[sv, 1], s=100, edgecolors='k', facecolors='none')  # Plo
 
 plt.xlabel('x1')
 plt.ylabel('x2')
-plt.title('Linear SVM with Hard Margin')
+plt.title(f'Linear SVM with Hard Margin\nMisclassification error: {calculate_error(X, y, w, b)}')
 plt.show()
