@@ -62,6 +62,7 @@ def plot_loss(name,losshistory):
     plt.title(f'{name} Loss convergence over time')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
+    plt.show()
     
 
 
@@ -74,4 +75,3 @@ predict(XOR_model, inputs_XOR, labels_XOR)
 plot_loss("XOR",loss_XOR)
 
 
-plt.show()
