@@ -3,6 +3,7 @@ from SimpleNN import Func_Aprox_NN
 import matplotlib.pyplot as plt
 
 
+
 #create x vector with 1000 values between -1 and 1
 x = np.linspace(-1,1,1000)
 
@@ -11,7 +12,7 @@ y = 3*x**5 + 1.5*x**4 + 2*x**3 + 7*x + 0.5
 
 #hyperparameters
 lr = 0.01
-epochs = 1000
+epochs = 5000
 
 #initialize model
 func_model = Func_Aprox_NN()
