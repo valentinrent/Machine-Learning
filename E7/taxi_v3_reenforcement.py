@@ -36,10 +36,9 @@ epsilon_decay = 0.999 # decay multiplied with epsilon after each episode
 # Plot the number of steps taken with each episode (during the training and testing phases).
 
 #Lists for later plots
-steps_train = []
-steps_test = []
-rewards_train = []
-rewards_test = []
+steplist = []
+rewardlist = []
+
 
 
 #training
@@ -81,8 +80,8 @@ for _ in range(train_episodes):
         state = (next_state, info)
 
         
-    steps_train.append(steps)
-    rewards_train.append(ges_reward)
+    steplist.append(steps)
+    rewardlist.append(ges_reward)
 
     
     #Update epsilon
@@ -93,24 +92,58 @@ for _ in range(train_episodes):
 
 
 
+#testing
+for _ in range(test_episodes):
+    
+    #Flag for termination of episode
+    terminate = False
+
+    #initialize stepcounter and reward sum
+    steps = 0
+    ges_reward = 0
+    
+    #Initialize random state and reset
+    state = env.reset()
+
+    for _ in range(max_steps):
+        steps += 1
+        #Directly choose action with no exploration
+        action = np.argmax(qtable[state[0],:])
+        
+        #Take action
+        next_state, reward, terminate, trunc ,info = env.step(action)
+
+        ges_reward += reward
+
+        #Check if terminal in terminal state
+        if terminate:
+            break
+
+        #Update state
+        state = (next_state, info)
+
+        
+    steplist.append(steps)
+    rewardlist.append(ges_reward)
 
 
 
 
 # Plotting rewards per episode
 plt.figure(figsize=(10, 5))
-plt.plot(range(train_episodes), rewards_train, label='Training')
-#plt.plot(range(train_episodes, episodes), rewards_test, label='Testing')
+plt.plot(range(episodes), rewardlist, label='Rewards')
+plt.axvline(x=train_episodes, color='r', linestyle='--', label='Test-Boundary')
 plt.xlabel('Episode')
 plt.ylabel('Reward')
 plt.title('Rewards per Episode')
 plt.legend()
 
 
+
 # Plotting steps per episode
 plt.figure(figsize=(10, 5))
-plt.plot(range(train_episodes), steps_train, label='Training')
-#plt.plot(range(train_episodes, episodes), steps_test, label='Testing')
+plt.plot(range(episodes), steplist, label='Training')
+plt.axvline(x=train_episodes, color='r', linestyle='--', label='Test-Boundary')
 plt.xlabel('Episode')
 plt.ylabel('Steps')
 plt.title('Steps per Episode')
